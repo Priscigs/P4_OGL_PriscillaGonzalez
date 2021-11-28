@@ -1,3 +1,7 @@
+# Universidad del Valle de Guatemala
+# Priscilla González - 20689
+# Proyecto 4 OGL - Gráficas
+
 # GLSL
 # Graphics Library Shaders Library
 
@@ -91,35 +95,6 @@ void main()
 }
 """
 
-negative_vertex_shader = """
-#version 450
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 normal;
-layout (location = 2) in vec2 texCoords;
-
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-
-uniform float tiempo;
-uniform float valor;
-uniform vec3 pointLight;
-
-out vec2 outTexCoords;
-out float intensity;
-
-void main()
-{
-    vec4 norm = vec4(normal, 0.0);
-    vec4 pos = vec4(position, 1.0) + norm * valor;
-    pos = modelMatrix * pos;
-    vec4 light = vec4(pointLight, 1.0);
-    intensity = dot(modelMatrix * norm, normalize(light - pos));
-    gl_Position = projectionMatrix * viewMatrix * pos;
-    outTexCoords = texCoords;
-}
-"""
-
 negative_fragment_shader = """
 #version 450
 layout (location = 0) out vec4 fragColor;
@@ -139,35 +114,6 @@ void main()
 }
 """
 
-trigonometric_vertex_shader = """
-#version 450
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 normal;
-layout (location = 2) in vec2 texCoords;
-
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-
-uniform float tiempo;
-uniform float valor;
-uniform vec3 pointLight;
-
-out vec2 outTexCoords;
-out float intensity;
-
-void main()
-{
-    vec4 norm = vec4(normal, 0.0);
-    vec4 pos = vec4(position, 1.0) + norm * valor;
-    pos = modelMatrix * pos;
-    vec4 light = vec4(pointLight, 1.0);
-    intensity = dot(modelMatrix * norm, normalize(light - pos));
-    gl_Position = projectionMatrix * viewMatrix * pos;
-    outTexCoords = texCoords;
-}
-"""
-
 trigonometric_fragment_shader = """
 #version 450
 layout (location = 0) out vec4 fragColor;
@@ -183,35 +129,6 @@ void main()
     float b = 1.0;
 
     fragColor = vec4(r, g, b, 1.0) * intensity;
-}
-"""
-
-rad_vertex_shader = """
-#version 450
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 normal;
-layout (location = 2) in vec2 texCoords;
-
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-
-uniform float tiempo;
-uniform float valor;
-uniform vec3 pointLight;
-
-out vec2 outTexCoords;
-out float intensity;
-
-void main()
-{
-    vec4 norm = vec4(normal, 0.0);
-    vec4 pos = vec4(position, 1.0) + norm * valor;
-    pos = modelMatrix * pos;
-    vec4 light = vec4(pointLight, 1.0);
-    intensity = dot(modelMatrix * norm, normalize(light - pos));
-    gl_Position = projectionMatrix * viewMatrix * pos;
-    outTexCoords = texCoords;
 }
 """
 
@@ -235,35 +152,6 @@ void main()
     float b = sin(rad * pi * 20);
 
     fragColor = vec4(r, g, b, 1.0) * intensity;
-}
-"""
-
-flower_vertex_shader = """
-#version 450
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 normal;
-layout (location = 2) in vec2 texCoords;
-
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
-
-uniform float tiempo;
-uniform float valor;
-uniform vec3 pointLight;
-
-out vec2 outTexCoords;
-out float intensity;
-
-void main()
-{
-    vec4 norm = vec4(normal, 0.0);
-    vec4 pos = vec4(position, 1.0) + norm * valor;
-    pos = modelMatrix * pos;
-    vec4 light = vec4(pointLight, 1.0);
-    intensity = dot(modelMatrix * norm, normalize(light - pos));
-    gl_Position = projectionMatrix * viewMatrix * pos;
-    outTexCoords = texCoords;
 }
 """
 

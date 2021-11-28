@@ -1,9 +1,12 @@
+# Universidad del Valle de Guatemala
+# Priscilla González - 20689
+# Proyecto 4 OGL - Gráficas
+
 import glm
 from OpenGL.GL import * 
 from OpenGL.GL.shaders import compileProgram, compileShader
 from pygame import image
 from numpy import array, float32
-
 import obj
 
 class Model(object):
@@ -36,7 +39,6 @@ class Model(object):
         return translateMatrix * rotationMatrix * scaleMatrix
 
     def createVertexBuffer(self):
-
         buffer = []
         self.moreVerts = 0
 
@@ -61,6 +63,7 @@ class Model(object):
 
             self.moreVerts += 1
 
+            # Más de 4 vértices
             if len(face) == 4:
                 self.moreVerts += 1
                 for i in [0,2,3]:
@@ -82,80 +85,81 @@ class Model(object):
                     buffer.append(uvs[1])
 
         self.vertBuffer = array(buffer, dtype = float32)
-
-        self.VBO = glGenBuffers(1) #Vertex Buffer Object
-        self.VAO = glGenVertexArrays(1) #Vertex Array Object
+        self.VBO = glGenBuffers(1)                                  #Vertex Buffer Object
+        self.VAO = glGenVertexArrays(1)                             #Vertex Array Object
 
     def renderInScene(self):
-        
         glBindVertexArray(self.VAO)
         glBindBuffer(GL_ARRAY_BUFFER, self.VBO)
 
         # Los vertices
-        glBufferData(GL_ARRAY_BUFFER,           #Buffer ID
-                     self.vertBuffer.nbytes,    #Buffer size in bytes
-                     self.vertBuffer,           #Buffer data
-                     GL_STATIC_DRAW )           #Usage
+        glBufferData(GL_ARRAY_BUFFER,                               # Buffer ID
+                     self.vertBuffer.nbytes,                        # Buffer size in bytes
+                     self.vertBuffer,                               # Buffer data
+                     GL_STATIC_DRAW )                               # Usage (uso del buffer)
 
         # Atributo de posicion
-        glVertexAttribPointer(0,                # Attribute number
-                              3,                # Size
-                              GL_FLOAT,         # Type
-                              GL_FALSE,         # It it normalized?
-                              4 * 8,            # Stride
-                              ctypes.c_void_p(0)) # Offset
+        glVertexAttribPointer(0,                                    # Attribute number
+                              3,                                    # Size
+                              GL_FLOAT,                             # Type
+                              GL_FALSE,                             # It it normalized?
+                              4 * 8,                                # Stride
+                              ctypes.c_void_p(0))                   # Offset
 
         glEnableVertexAttribArray(0)
 
         # Atributo de normales
-        glVertexAttribPointer(1,
-                              3,
-                              GL_FLOAT,
-                              GL_FALSE,
-                              4 * 8,
-                              ctypes.c_void_p(4 * 3))
+        glVertexAttribPointer(1,                                    # Attribute number
+                              3,                                    # Size
+                              GL_FLOAT,                             # Type
+                              GL_FALSE,                             # It it normalized?
+                              4 * 8,                                # Stride
+                              ctypes.c_void_p(4 * 3))               # Offset
 
         glEnableVertexAttribArray(1)
 
         # Atributo de coordenadas de textura
-        glVertexAttribPointer(2,
-                              2,
-                              GL_FLOAT,
-                              GL_FALSE,
-                              4 * 8,
-                              ctypes.c_void_p(4 * 6))
+        glVertexAttribPointer(2,                                    # Attribute number
+                              2,                                    # Size
+                              GL_FLOAT,                             # Type
+                              GL_FALSE,                             # It it normalized?
+                              4 * 8,                                # Stride
+                              ctypes.c_void_p(4 * 6))               # Offset
 
+        # Activar un atributo específico, siendo su parámetro el de la posición glVertexAttribPointer
         glEnableVertexAttribArray(2)
 
         # Dar textura
         glBindTexture(GL_TEXTURE_2D, self.texture)
-        glTexImage2D(GL_TEXTURE_2D,                     # Texture type
-                     0,                                 # Level
-                     GL_RGB,                            # Format
-                     self.textureSurface.get_width(),   # Width
-                     self.textureSurface.get_height(),  # Height
-                     0,                                 # Border
-                     GL_RGB,                            # Format
-                     GL_UNSIGNED_BYTE,                  # Type
-                     self.textureData)                  # Data
+        glTexImage2D(GL_TEXTURE_2D,                                 # Texture type
+                     0,                                             # Level
+                     GL_RGB,                                        # Format
+                     self.textureSurface.get_width(),               # Width
+                     self.textureSurface.get_height(),              # Height
+                     0,                                             # Border
+                     GL_RGB,                                        # Format
+                     GL_UNSIGNED_BYTE,                              # Type
+                     self.textureData)                              # Data
 
         glGenerateMipmap(GL_TEXTURE_2D)
 
         # Dibujar
-        glDrawArrays(GL_TRIANGLES, 0, self.moreVerts * 3 ) # Para dibujar vertices en orden
+        glDrawArrays(GL_TRIANGLES, 0, self.moreVerts * 3 )          # Para dibujar vertices en orden
 
 class Renderer(object):
     def __init__(self, screen):
         self.screen = screen
         _, _, self.width, self.height = screen.get_rect()
 
+        # Se activa el zbuffer
         glEnable(GL_DEPTH_TEST)
         glViewport(0,0, self.width, self.height)
 
+        # Guarda objetos renderizados en la escena
         self.scene = []
-
+        self.radius = 5
+        self.angle = 3
         self.pointLight = glm.vec3(-10, -5, 5)
-
         self.tiempo = 0
         self.valor = 0
 
@@ -174,6 +178,7 @@ class Renderer(object):
 
         translateMatrix = glm.translate(identity, self.camPosition)
 
+        # ,Cantidad de ángulo rotados, eje en el que se queiere rotar
         pitch = glm.rotate(identity, glm.radians( self.camRotation.x ), glm.vec3(1,0,0) )
         yaw   = glm.rotate(identity, glm.radians( self.camRotation.y ), glm.vec3(0,1,0) )
         roll  = glm.rotate(identity, glm.radians( self.camRotation.z ), glm.vec3(0,0,1) )
@@ -183,6 +188,20 @@ class Renderer(object):
         camMatrix = translateMatrix * rotationMatrix
 
         return glm.inverse(camMatrix)
+
+    # Rotación
+    def left(self, target, amount):
+        self.angle += amount
+        self.camPosition.x = glm.sin(glm.radians(self.angle)) * self.radius
+        self.camPosition.z = glm.cos(glm.radians(self.angle)) * self.radius
+        self.viewMatrix = glm.lookAt((target - self.camPosition), target, glm.vec3(0.0,1.0,0.0))
+
+    # Rotación
+    def right(self, target, amount):
+        self.angle -= amount
+        self.camPosition.x = glm.sin(glm.radians(self.angle)) * self.radius
+        self.camPosition.z = glm.cos(glm.radians(self.angle)) * self.radius
+        self.viewMatrix = glm.lookAt(target - self.camPosition, target, glm.vec3(0.0,1.0,0.0))
 
     def wireframeMode(self):
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
@@ -197,28 +216,32 @@ class Renderer(object):
         else:
             self.active_shader = None
 
+    # Llamar una y otra vez por cada cuadro
     def render(self):
+        # Borrar color de la pantalla
         glClearColor(0.2,0.2,0.2,1)
+        # Clear al buffer del color de fondo y al del profundidad
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         glUseProgram(self.active_shader)
 
         if self.active_shader:
-            glUniformMatrix4fv(glGetUniformLocation(self.active_shader, "viewMatrix"),
+            glUniformMatrix4fv(glGetUniformLocation(self.active_shader, "viewMatrix"),      # Uniform Location
                                1, GL_FALSE, glm.value_ptr(self.getViewMatrix()))
 
-            glUniformMatrix4fv(glGetUniformLocation(self.active_shader, "projectionMatrix"),
+            glUniformMatrix4fv(glGetUniformLocation(self.active_shader, "projectionMatrix"),# Uniform Location
                                1, GL_FALSE, glm.value_ptr(self.projectionMatrix))
 
-            glUniform1f(glGetUniformLocation(self.active_shader, "tiempo"), self.tiempo)
-            glUniform1f(glGetUniformLocation(self.active_shader, "valor"), self.valor)
+            glUniform1f(glGetUniformLocation(self.active_shader, "tiempo"), self.tiempo)    # Uniform Location
 
-            glUniform3f(glGetUniformLocation(self.active_shader, "pointLight"),
+            glUniform1f(glGetUniformLocation(self.active_shader, "valor"), self.valor)      # Uniform Location
+
+            glUniform3f(glGetUniformLocation(self.active_shader, "pointLight"),             # Uniform Location
                         self.pointLight.x, self.pointLight.y, self.pointLight.z)
 
         for model in self.scene:
             if self.active_shader:
-                glUniformMatrix4fv(glGetUniformLocation(self.active_shader, "modelMatrix"),
+                glUniformMatrix4fv(glGetUniformLocation(self.active_shader, "modelMatrix"), # Uniform Location
                                    1, GL_FALSE, glm.value_ptr(model.getModelMatrix()))
 
             model.renderInScene()

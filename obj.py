@@ -1,7 +1,6 @@
-# Priscilla González 20689
-# Proyecto Renderer
-# Fecha 23.08.21
-# Carga un archivo de tipo OBJ
+# Universidad del Valle de Guatemala
+# Priscilla González - 20689
+# Proyecto 4 OGL - Gráficas
 
 class Obj(object):
     def __init__(self, filename):
